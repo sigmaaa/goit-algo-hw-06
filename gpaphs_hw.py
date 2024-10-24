@@ -35,6 +35,10 @@ def dfs_iterative(graph, start, looking_vertex):
 def dijkstra(graph, start):
     distances = {vertex: float('infinity') for vertex in graph}
     distances[start] = 0
+
+    # Щоб зберігати попередників для відтворення шляху
+    previous_vertices = {vertex: None for vertex in graph}
+
     unvisited = list(graph.keys())
 
     while unvisited:
@@ -46,12 +50,25 @@ def dijkstra(graph, start):
         for neighbor, weight in graph[current_vertex].items():
             distance = distances[current_vertex] + weight
 
+            # Оновлюємо найкоротшу відстань, якщо знайдено коротший шлях
             if distance < distances[neighbor]:
                 distances[neighbor] = distance
+                # Запам'ятовуємо попередника
+                previous_vertices[neighbor] = current_vertex
 
         unvisited.remove(current_vertex)
 
-    return distances
+    return distances, previous_vertices
+
+
+def restore_path(vertices_map, looking_vertex):
+    path = []
+    while vertices_map.get(looking_vertex) is not None:
+        path.append(looking_vertex)
+        looking_vertex = vertices_map.get(looking_vertex)
+    path.append(looking_vertex)
+    path.reverse()
+    return path
 
 
 weight_transport_network = {
@@ -100,4 +117,8 @@ print("____________DFS:______________")
 print(dfs_iterative(weight_transport_network, 'A', 'H'))
 
 
-print(dijkstra(weight_transport_network, 'A'))
+distances, vertices = dijkstra(weight_transport_network, 'A')
+print(distances)
+for vertex in vertices:
+    print(f"shortest path for {vertex}")
+    print(restore_path(vertices, vertex))
